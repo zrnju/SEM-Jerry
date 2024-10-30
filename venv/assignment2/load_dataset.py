@@ -30,8 +30,8 @@ genes_of_interest = [reverse_lookup[gene] for gene in genes_of_interest if gene 
 print("Genes mapped to indices:", genes_of_interest)
 
 # Export current dataset
-print(adata.obs)
-adata.obs.to_csv('obs_data.csv',index=False)
+#print(adata.obs)
+#adata.obs.to_csv('obs_data.csv',index=False)
 
 
 # Step 3: Experiment and find the differences between the two cohorts in disease category (purple Alzheimer subject, green normal subject).
@@ -40,8 +40,8 @@ adata.obs.to_csv('obs_data.csv',index=False)
 obs = adata.obs
 normal = obs.loc[obs.disease == "normal"]
 ad = obs.loc[obs.disease == "Alzheimer disease"]
-print(normal)
-print(ad)
+#print(normal)
+#print(ad)
 
 # Comparison
 normal.reset_index(inplace=True)
@@ -54,5 +54,56 @@ plt.ylabel('Values')
 plt.xlabel('Statistics')
 plt.xticks(rotation=45)
 plt.legend(title='Group')
+plt.tight_layout()
+plt.show()
+
+# Plot boxplots for genes of interest in both cohorts
+plt.figure(figsize=(10, 6))
+for i, gene in enumerate(genes_of_interest, 1):
+    plt.subplot(2, 3, i)
+    sns.boxplot(
+        x=obs['disease'],
+        y=adata[:, gene].X.toarray().flatten(),
+        hue=obs['disease'],
+        palette={"Alzheimer disease": "purple", "normal": "green"},
+        legend=False
+    )
+    plt.title(f"Expression of {lookup[gene]}")
+    plt.xlabel('')
+    plt.ylabel('Expression')
+plt.tight_layout()
+plt.show()
+
+# subjects of different ages (57 - 89)
+plt.figure(figsize=(10, 6))
+for i, gene in enumerate(genes_of_interest, 1):
+    plt.subplot(2, 3, i)
+    sns.violinplot(
+        x=obs['development_stage'],
+        y=adata[:, gene].X.toarray().flatten(),
+        palette="coolwarm",
+        scale="width",
+        inner="quartile"
+    )
+    plt.title(f"Expression of {lookup[gene]}")
+    plt.xlabel('Age Group')
+    plt.xticks(rotation=45)
+    plt.ylabel('Expression')
+plt.tight_layout()
+plt.show()
+
+# subjects of gender cohorts
+plt.figure(figsize=(10, 6))
+for i, gene in enumerate(genes_of_interest, 1):
+    plt.subplot(2, 3, i)
+    sns.boxplot(
+        x=obs['sex'],
+        y=adata[:, gene].X.toarray().flatten(),
+        palette={"male": "skyblue", "female": "salmon"}
+    )
+    plt.title(f"Expression of {lookup[gene]}")
+    plt.xlabel('Gender')
+    plt.ylabel('Expression')
+
 plt.tight_layout()
 plt.show()
